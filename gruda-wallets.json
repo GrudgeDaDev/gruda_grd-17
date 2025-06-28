@@ -1,0 +1,315 @@
+{
+  "version": 1.1,
+  "properties": [
+    {
+      "name": "gruda-wallet-address",
+      "description": "GRUDA wallet address identifier for blockchain transactions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<string>",
+      "relevance": 50,
+      "references": [
+        {
+          "name": "GRUDA Wallet Documentation",
+          "url": "https://gruda.wallet/docs/integration"
+        }
+      ]
+    },
+    {
+      "name": "gruda-wallet-type",
+      "description": "Type of GRUDA wallet (solana, ethereum, polygon)",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "solana | ethereum | polygon | multi-chain",
+      "values": [
+        {
+          "name": "solana",
+          "description": "Solana blockchain wallet"
+        },
+        {
+          "name": "ethereum",
+          "description": "Ethereum blockchain wallet"
+        },
+        {
+          "name": "polygon",
+          "description": "Polygon blockchain wallet"
+        },
+        {
+          "name": "multi-chain",
+          "description": "Multi-blockchain wallet support"
+        }
+      ],
+      "relevance": 60
+    },
+    {
+      "name": "gruda-wallet-balance",
+      "description": "Current wallet balance in native currency",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 45
+    },
+    {
+      "name": "gruda-wallet-connected",
+      "description": "Wallet connection status",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "true | false",
+      "values": [
+        {
+          "name": "true",
+          "description": "Wallet is connected"
+        },
+        {
+          "name": "false",
+          "description": "Wallet is disconnected"
+        }
+      ],
+      "relevance": 70
+    },
+    {
+      "name": "gruda-wallet-network",
+      "description": "Blockchain network identifier",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "mainnet | testnet | devnet",
+      "values": [
+        {
+          "name": "mainnet",
+          "description": "Production blockchain network"
+        },
+        {
+          "name": "testnet",
+          "description": "Test blockchain network"
+        },
+        {
+          "name": "devnet",
+          "description": "Development blockchain network"
+        }
+      ],
+      "relevance": 55
+    },
+    {
+      "name": "gruda-wallet-provider",
+      "description": "Wallet provider name",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "phantom | metamask | coinbase | web3auth | grudge-wallet",
+      "values": [
+        {
+          "name": "phantom",
+          "description": "Phantom wallet provider"
+        },
+        {
+          "name": "metamask",
+          "description": "MetaMask wallet provider"
+        },
+        {
+          "name": "coinbase",
+          "description": "Coinbase wallet provider"
+        },
+        {
+          "name": "web3auth",
+          "description": "Web3Auth wallet provider"
+        },
+        {
+          "name": "grudge-wallet",
+          "description": "GRUDGE Studio native wallet"
+        }
+      ],
+      "relevance": 65
+    }
+  ],
+  "atDirectives": [
+    {
+      "name": "@gruda-wallet",
+      "description": "Initialize GRUDA wallet integration",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "references": [
+        {
+          "name": "GRUDA Wallet CSS Integration",
+          "url": "https://gruda.wallet/docs/css-integration"
+        }
+      ]
+    },
+    {
+      "name": "@gruda-connect",
+      "description": "Define wallet connection behavior",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "@gruda-transaction",
+      "description": "Handle transaction styling and states",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ],
+  "pseudoClasses": [
+    {
+      "name": ":gruda-connected",
+      "description": "Styles applied when GRUDA wallet is connected",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "references": [
+        {
+          "name": "GRUDA Wallet States",
+          "url": "https://gruda.wallet/docs/states"
+        }
+      ]
+    },
+    {
+      "name": ":gruda-disconnected",
+      "description": "Styles applied when GRUDA wallet is disconnected",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-loading",
+      "description": "Styles applied during wallet loading states",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-error",
+      "description": "Styles applied when wallet encounters an error",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-transaction-pending",
+      "description": "Styles applied during pending transactions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-transaction-success",
+      "description": "Styles applied for successful transactions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-transaction-failed",
+      "description": "Styles applied for failed transactions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ],
+  "pseudoElements": [
+    {
+      "name": "::gruda-wallet-icon",
+      "description": "Wallet provider icon element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "::gruda-balance-display",
+      "description": "Wallet balance display element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "::gruda-address-display",
+      "description": "Wallet address display element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "::gruda-connect-button",
+      "description": "Wallet connection button element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "::gruda-transaction-status",
+      "description": "Transaction status indicator element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ]
+}

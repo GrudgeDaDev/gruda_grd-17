@@ -1,0 +1,203 @@
+{
+  "version": 1.1,
+  "properties": [
+    {
+      "name": "--gruda-primary-color",
+      "description": "Primary brand color for GRUDA interface elements",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<color>",
+      "relevance": 80,
+      "references": [
+        {
+          "name": "GRUDA Design System",
+          "url": "https://gruda.studio/design-system"
+        }
+      ]
+    },
+    {
+      "name": "--gruda-secondary-color",
+      "description": "Secondary brand color for GRUDA interface accents",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<color>",
+      "relevance": 70
+    },
+    {
+      "name": "--gruda-background-color",
+      "description": "Background color for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<color>",
+      "relevance": 75
+    },
+    {
+      "name": "--gruda-text-color",
+      "description": "Text color for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<color>",
+      "relevance": 75
+    },
+    {
+      "name": "--gruda-border-radius",
+      "description": "Border radius for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<length>",
+      "relevance": 60
+    },
+    {
+      "name": "--gruda-shadow-color",
+      "description": "Shadow color for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<color>",
+      "relevance": 55
+    },
+    {
+      "name": "--gruda-font-family",
+      "description": "Font family for GRUDA text elements",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<string>",
+      "relevance": 65
+    },
+    {
+      "name": "--gruda-wallet-width",
+      "description": "Width of GRUDA wallet components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<length> | <percentage>",
+      "relevance": 50
+    },
+    {
+      "name": "--gruda-wallet-height",
+      "description": "Height of GRUDA wallet components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<length> | <percentage>",
+      "relevance": 50
+    },
+    {
+      "name": "--gruda-animation-duration",
+      "description": "Duration for GRUDA component animations",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<time>",
+      "relevance": 45
+    },
+    {
+      "name": "--gruda-transition-timing",
+      "description": "Timing function for GRUDA transitions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<timing-function>",
+      "relevance": 40
+    },
+    {
+      "name": "--gruda-spacing-small",
+      "description": "Small spacing value for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<length>",
+      "relevance": 50
+    },
+    {
+      "name": "--gruda-spacing-medium",
+      "description": "Medium spacing value for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<length>",
+      "relevance": 50
+    },
+    {
+      "name": "--gruda-spacing-large",
+      "description": "Large spacing value for GRUDA components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<length>",
+      "relevance": 50
+    },
+    {
+      "name": "--gruda-z-index-modal",
+      "description": "Z-index for GRUDA modal components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<integer>",
+      "relevance": 40
+    },
+    {
+      "name": "--gruda-z-index-tooltip",
+      "description": "Z-index for GRUDA tooltip components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<integer>",
+      "relevance": 35
+    }
+  ]
+}

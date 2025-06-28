@@ -1,0 +1,219 @@
+{
+  "version": 1.1,
+  "properties": [
+    {
+      "name": "gruda-chain-id",
+      "description": "Blockchain chain identifier for GRUDA network",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 60,
+      "references": [
+        {
+          "name": "GRUDA Blockchain Documentation",
+          "url": "https://gruda.chain/docs"
+        }
+      ]
+    },
+    {
+      "name": "gruda-token-address",
+      "description": "GRUDA token contract address",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<string>",
+      "relevance": 70
+    },
+    {
+      "name": "gruda-nft-collection",
+      "description": "GRUDA NFT collection address",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<string>",
+      "relevance": 55
+    },
+    {
+      "name": "gruda-gas-price",
+      "description": "Current gas price for GRUDA transactions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 45
+    },
+    {
+      "name": "gruda-block-height",
+      "description": "Current blockchain block height",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 40
+    },
+    {
+      "name": "gruda-transaction-hash",
+      "description": "Transaction hash identifier",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<string>",
+      "relevance": 65
+    },
+    {
+      "name": "gruda-validator-address",
+      "description": "GRUDA network validator address",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<string>",
+      "relevance": 50
+    },
+    {
+      "name": "gruda-staking-amount",
+      "description": "Amount staked in GRUDA network",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 55
+    },
+    {
+      "name": "gruda-reward-rate",
+      "description": "Staking reward rate percentage",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<percentage>",
+      "relevance": 50
+    },
+    {
+      "name": "gruda-consensus-status",
+      "description": "Network consensus status",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "active | inactive | syncing",
+      "values": [
+        {
+          "name": "active",
+          "description": "Consensus is active and healthy"
+        },
+        {
+          "name": "inactive",
+          "description": "Consensus is inactive"
+        },
+        {
+          "name": "syncing",
+          "description": "Node is syncing with network"
+        }
+      ],
+      "relevance": 60
+    }
+  ],
+  "atDirectives": [
+    {
+      "name": "@gruda-chain",
+      "description": "Define blockchain chain configuration",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "@gruda-contract",
+      "description": "Define smart contract interaction",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "@gruda-validator",
+      "description": "Define validator node configuration",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ],
+  "pseudoClasses": [
+    {
+      "name": ":gruda-validated",
+      "description": "Styles for validated blockchain data",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-pending",
+      "description": "Styles for pending blockchain operations",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-confirmed",
+      "description": "Styles for confirmed blockchain transactions",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-failed",
+      "description": "Styles for failed blockchain operations",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ]
+}

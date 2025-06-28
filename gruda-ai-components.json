@@ -1,0 +1,269 @@
+{
+  "version": 1.1,
+  "properties": [
+    {
+      "name": "gruda-ai-model",
+      "description": "Specify which GRUDA AI model to use",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "grd17 | grd27 | aleofthought | dangrd | grdviz | norightanswersgrd | ale | grdsprint | aleboss",
+      "values": [
+        {
+          "name": "grd17",
+          "description": "GRD1.7 Primary Core AI model"
+        },
+        {
+          "name": "grd27",
+          "description": "GRD2.7 Deep Logic AI model"
+        },
+        {
+          "name": "aleofthought",
+          "description": "ALEofThought Reasoning AI model"
+        },
+        {
+          "name": "dangrd",
+          "description": "DANGRD Chaos Engine AI model"
+        },
+        {
+          "name": "grdviz",
+          "description": "GRDVIZ Vision Core AI model"
+        },
+        {
+          "name": "norightanswersgrd",
+          "description": "NoRightAnswerGRD Paradox AI model"
+        },
+        {
+          "name": "ale",
+          "description": "ALE Swift Response AI model"
+        },
+        {
+          "name": "grdsprint",
+          "description": "GRDSPRINT Speed Demon AI model"
+        },
+        {
+          "name": "aleboss",
+          "description": "ALEBOSS Ultimate Resource Manager AI model"
+        }
+      ],
+      "relevance": 80,
+      "references": [
+        {
+          "name": "GRUDA AI Legion Documentation",
+          "url": "https://gruda.ai/docs/legion"
+        }
+      ]
+    },
+    {
+      "name": "gruda-ai-intensity",
+      "description": "AI model intensity configuration",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 60
+    },
+    {
+      "name": "gruda-ai-response-time",
+      "description": "Expected AI response time in milliseconds",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<time>",
+      "relevance": 55
+    },
+    {
+      "name": "gruda-ai-confidence",
+      "description": "AI model confidence threshold",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<percentage>",
+      "relevance": 50
+    },
+    {
+      "name": "gruda-ai-status",
+      "description": "Current AI model status",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "active | idle | processing | error",
+      "values": [
+        {
+          "name": "active",
+          "description": "AI model is active and ready"
+        },
+        {
+          "name": "idle",
+          "description": "AI model is idle"
+        },
+        {
+          "name": "processing",
+          "description": "AI model is processing request"
+        },
+        {
+          "name": "error",
+          "description": "AI model encountered an error"
+        }
+      ],
+      "relevance": 70
+    },
+    {
+      "name": "gruda-ai-temperature",
+      "description": "AI model temperature setting for creativity",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 45
+    },
+    {
+      "name": "gruda-ai-max-tokens",
+      "description": "Maximum tokens for AI response",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 40
+    },
+    {
+      "name": "gruda-ai-context-window",
+      "description": "AI model context window size",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ],
+      "syntax": "<number>",
+      "relevance": 35
+    }
+  ],
+  "atDirectives": [
+    {
+      "name": "@gruda-ai-legion",
+      "description": "Initialize GRUDA AI Legion components",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "@gruda-ai-model",
+      "description": "Configure specific AI model settings",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "@gruda-ai-automation",
+      "description": "Set up AI automation rules",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ],
+  "pseudoClasses": [
+    {
+      "name": ":gruda-ai-active",
+      "description": "Styles when AI model is active",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-ai-thinking",
+      "description": "Styles when AI model is processing",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-ai-error",
+      "description": "Styles when AI model encounters error",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": ":gruda-ai-coordinated",
+      "description": "Styles when multiple AI models are coordinating",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ],
+  "pseudoElements": [
+    {
+      "name": "::gruda-ai-indicator",
+      "description": "AI model status indicator element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "::gruda-ai-response",
+      "description": "AI model response display element",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    },
+    {
+      "name": "::gruda-ai-progress",
+      "description": "AI processing progress indicator",
+      "browsers": [
+        "C",
+        "F",
+        "S",
+        "E"
+      ]
+    }
+  ]
+}
