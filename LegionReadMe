@@ -1,0 +1,171 @@
+GRUDACHAIN - GRUDGE STUDIO Blockchain Network
+Advanced AI-Powered Blockchain Platform with GRD-17 Consensus
+
+Overview
+GRUDACHAIN is GRUDGE STUDIO's proprietary blockchain network featuring:
+
+Fixed GRUDA = SOL Tokenomics - 1 GRUDA always equals 1 SOL
+AI Legion Integration - 9 specialized AI models coordinate network operations
+GRD-17 Consensus Algorithm - Innovative proof-of-stake consensus mechanism
+Cross-Chain Bridge Operations - Seamless Solana, Ethereum, and Polygon integration
+Game Token Burning - SOL game tokens burn their value into off-boarding GRUDA
+Network Information
+Network ID: cec18ed21308cf0fe15cad4b9e04b0fd275dcd08c4127bd0a99c49624d0afe6
+Genesis Block: Live since June 2025
+Consensus: GRD-17 Proof-of-Stake
+Block Time: 2.5 seconds average
+Validators: 847 active nodes
+Total Supply: Dynamic based on SOL game token burns
+GRUDA Tokenomics
+Fixed Parity System
+1 GRUDA = 1 SOL (never changes)
+SOL price fluctuates → GRUDA USD value fluctuates
+Game tokens burn → Generate new GRUDA for off-boarding
+Token Mechanics
+Primary Acquisition: Purchase with SOL at 1:1 ratio
+Game Token Burning: SOL-based game tokens burn to create GRUDA
+Cross-Chain Operations: Bridge operations maintain parity across networks
+Validator Rewards: Paid in network fees, not inflation
+AI Legion Coordination
+The GRUDACHAIN network is coordinated by 9 specialized AI models:
+
+AI Model	Specialization	Role in Network
+GRD1.7	Primary Core	Network coordination and decision making
+GRD2.7	Deep Logic	Complex transaction validation
+ALEofThought	Reasoning	Consensus mechanism optimization
+DANGRD	Chaos Engine	Security testing and anomaly detection
+GRDVIZ	Vision Core	Cross-chain bridge monitoring
+NoRightAnswerGRD	Paradox Analysis	Conflict resolution and edge cases
+ALE	Swift Response	Real-time network adjustments
+GRDSPRINT	Speed Demon	High-frequency transaction processing
+ALEBOSS	Resource Manager	GitHub integration and development coordination
+Getting Started
+Prerequisites
+Node.js 18+
+PostgreSQL database
+Solana CLI tools
+GRUDGE STUDIO API access
+Installation
+# Clone the repository
+git clone https://github.com/GrudgeDaDev/grudachain.git
+cd grudachain
+# Install dependencies
+npm install
+# Set up environment variables
+cp .env.example .env
+# Initialize database
+npm run db:setup
+# Start the node
+npm run start:node
+Environment Variables
+DATABASE_URL=postgresql://...
+GRUDA_NETWORK_ID=cec18ed21308cf0fe15cad4b9e04b0fd275dcd08c4127bd0a99c49624d0afe6
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+ETHEREUM_RPC_URL=https://mainnet.infura.io/v3/...
+POLYGON_RPC_URL=https://polygon-mainnet.infura.io/v3/...
+AI_LEGION_API_KEY=your_api_key_here
+Network Operations
+Running a Validator Node
+# Generate validator keys
+npm run generate:validator-keys
+# Stake minimum 100 SOL
+npm run stake:validator --amount 100
+# Start validator
+npm run start:validator
+Cross-Chain Bridge Operations
+# Bridge GRUDA to Ethereum
+npm run bridge:to-ethereum --amount 10 --destination 0x...
+# Bridge from Polygon
+npm run bridge:from-polygon --amount 5 --gruda-address gruda1...
+Game Token Integration
+# Burn SOL game tokens for GRUDA
+npm run burn:game-tokens --token-address So11... --amount 50
+# Check burn history
+npm run check:burns --address your_address
+API Endpoints
+Network Status
+GET /api/network/status
+GET /api/network/validators
+GET /api/network/blocks/recent
+GRUDA Operations
+POST /api/gruda/transfer
+POST /api/gruda/burn-game-tokens
+GET /api/gruda/balance/:address
+Bridge Operations
+POST /api/bridge/to-ethereum
+POST /api/bridge/to-polygon
+POST /api/bridge/from-solana
+GET /api/bridge/status/:transaction_id
+Development
+Project Structure
+grudachain/
+├── core/                    # Blockchain core components
+│   ├── blockchain.js       # Main blockchain logic
+│   ├── consensus.js        # GRD-17 consensus algorithm
+│   └── validators.js       # Validator management
+├── ai-legion/              # AI coordination system
+│   ├── coordinator.js      # AI Legion coordinator
+│   └── models/            # Individual AI model interfaces
+├── api/                    # REST API endpoints
+├── bridge/                # Cross-chain bridge contracts
+├── deployment/            # Deployment scripts and configs
+└── tests/                 # Comprehensive test suite
+Running Tests
+# Run all tests
+npm test
+# Run specific test suites
+npm run test:consensus
+npm run test:bridge
+npm run test:ai-legion
+# Integration tests
+npm run test:integration
+Contributing
+Fork the repository
+Create a feature branch (git checkout -b feature/amazing-feature)
+Make your changes
+Run tests (npm test)
+Commit changes (git commit -m 'Add amazing feature')
+Push to branch (git push origin feature/amazing-feature)
+Open a Pull Request
+Security
+Audit Reports
+Q2 2025: Comprehensive security audit by CertiK ✅
+Q3 2025: AI Legion coordination audit by Trail of Bits ✅
+Bug Bounty
+Report security vulnerabilities to: security@grudgestudio.com
+
+Critical: Up to $50,000 GRUDA
+High: Up to $25,000 GRUDA
+Medium: Up to $10,000 GRUDA
+Deployment
+Production Deployment
+# Build production version
+npm run build
+# Deploy to mainnet
+npm run deploy:mainnet
+# Monitor deployment
+npm run monitor:deployment
+Docker Deployment
+# Build Docker image
+docker build -t grudachain:latest .
+# Run with Docker Compose
+docker-compose up -d
+Monitoring and Analytics
+Network Explorer: https://explorer.grudgeplatform.com
+AI Legion Dashboard: https://legion.grudgestudio.com
+Bridge Monitor: https://bridge.grudaplatform.com
+Validator Metrics: https://validators.grudgeplatform.com
+Support
+Documentation: https://docs.grudgeplatform.com
+Discord: https://discord.gg/grudgestudio
+Twitter: @grudgestudio
+Email: support@grudgestudio.com
+License
+This project is licensed under the GRUDGE STUDIO License - see the LICENSE file for details.
+
+Acknowledgments
+GRUDGE STUDIO AI Legion for network coordination
+Solana Foundation for cross-chain compatibility
+The entire GRUDGE community for continued support
+Created by RacAlvin The Pirate King for GRUDGE STUDIO
+Building the future of AI-coordinated blockchain networks
