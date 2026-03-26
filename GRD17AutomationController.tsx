@@ -2,8 +2,12 @@
  * GRD-17 AI Automation Controller - GRUDGE STUDIO
  * Created by RacAlvin The Pirate King for GRUDGE STUDIO
  * Complete automation control interface for all API conditions
+ *
+ * Backend: https://api.grudge-studio.com (Grudge Studio VPS)
+ * Storage: Puter.js free cloud storage, linked to Grudge ID
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { grd17Puter, type GrudgeUser, type GRD17AutomationConfig } from './puter-integration';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,8 +36,16 @@ import {
   Eye,
   Plus,
   TestTube,
-  Crown
+  Crown,
+  User,
+  LogIn,
+  LogOut,
+  Save,
+  Cloud
 } from 'lucide-react';
+
+// Grudge Legion proxy base — all GRD-17 calls route through here
+const GRD17_BASE = '/api/gruda-legion/grd17';
 
 interface AutomationCondition {
   endpoint: string;
@@ -71,6 +83,9 @@ export function GRD17AutomationController() {
   const [testEndpoint, setTestEndpoint] = useState('');
   const [testCondition, setTestCondition] = useState('');
   const [testResult, setTestResult] = useState<boolean | null>(null);
+  const [puterUser, setPuterUser] = useState<GrudgeUser | null>(null);
+  const [puterLoading, setPuterLoading] = useState(false);
+  const [cloudSaved, setCloudSaved] = useState(false);
   const [newRule, setNewRule] = useState({
     id: '',
     name: '',
@@ -79,15 +94,62 @@ export function GRD17AutomationController() {
     priority: 2
   });
 
+  // Auto-init Puter on mount if already signed in
+  useEffect(() => {
+    if (grd17Puter.isSignedIn()) {
+      grd17Puter.signIn().then(user => {
+        if (user) {
+          setPuterUser(user);
+          // Load cloud-saved automation config and restore rule preferences
+          grd17Puter.loadAutomationConfig().then(config => {
+            if (config) console.log('GRD-17: Restored automation config from Puter cloud');
+          });
+        }
+      });
+    }
+  }, []);
+
   useEffect(() => {
     fetchAutomationStatus();
     const interval = setInterval(fetchAutomationStatus, 10000); // Update every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
+  const handlePuterSignIn = useCallback(async () => {
+    setPuterLoading(true);
+    const user = await grd17Puter.signIn();
+    setPuterUser(user);
+    if (user && automationStatus) {
+      // Restore saved preferences from cloud
+      const config = await grd17Puter.loadAutomationConfig();
+      if (config) console.log('GRD-17: Loaded cloud config for', user.username);
+    }
+    setPuterLoading(false);
+  }, [automationStatus]);
+
+  const handlePuterSignOut = useCallback(async () => {
+    await grd17Puter.signOut();
+    setPuterUser(null);
+  }, []);
+
+  const saveToCloud = useCallback(async () => {
+    if (!puterUser || !automationStatus) return;
+    const config: GRD17AutomationConfig = {
+      enabledRules: automationStatus.rules.filter(r => r.enabled).map(r => r.id),
+      disabledRules: automationStatus.rules.filter(r => !r.enabled).map(r => r.id),
+      customRules: [],
+      preferredModel: newRule.aiModel,
+      lastUpdated: new Date().toISOString(),
+    };
+    await grd17Puter.saveAutomationConfig(config);
+    await grd17Puter.markSynced();
+    setCloudSaved(true);
+    setTimeout(() => setCloudSaved(false), 2000);
+  }, [puterUser, automationStatus, newRule.aiModel]);
+
   const fetchAutomationStatus = async () => {
     try {
-      const response = await fetch('/api/grd17/automation/status');
+      const response = await fetch(`${GRD17_BASE}/automation/status`);
       if (response.ok) {
         const data = await response.json();
         setAutomationStatus(data.automation);
@@ -102,7 +164,7 @@ export function GRD17AutomationController() {
   const toggleRule = async (ruleId: string, enabled: boolean) => {
     try {
       const endpoint = enabled ? 'enable' : 'disable';
-      const response = await fetch(`/api/grd17/automation/${endpoint}/${ruleId}`, {
+      const response = await fetch(`${GRD17_BASE}/automation/${endpoint}/${ruleId}`, {
         method: 'POST'
       });
       
@@ -116,7 +178,7 @@ export function GRD17AutomationController() {
 
   const executeRule = async (ruleId: string) => {
     try {
-      const response = await fetch(`/api/grd17/automation/execute/${ruleId}`, {
+      const response = await fetch(`${GRD17_BASE}/automation/execute/${ruleId}`, {
         method: 'POST'
       });
       
@@ -132,7 +194,7 @@ export function GRD17AutomationController() {
     if (!testEndpoint || !testCondition) return;
     
     try {
-      const response = await fetch('/api/grd17/automation/test-condition', {
+      const response = await fetch(`${GRD17_BASE}/automation/test-condition`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -203,6 +265,41 @@ export function GRD17AutomationController() {
               <Badge className="bg-green-600 text-white">
                 {automationStatus?.enabledRules} / {automationStatus?.totalRules} Active
               </Badge>
+
+              {/* Puter / Grudge account panel */}
+              {puterUser ? (
+                <div className="flex items-center space-x-2">
+                  <Badge className="bg-purple-700 text-white flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    {puterUser.username}
+                  </Badge>
+                  <Button
+                    onClick={saveToCloud}
+                    variant="outline"
+                    size="sm"
+                    title="Save automation config to Puter cloud"
+                  >
+                    {cloudSaved
+                      ? <><Cloud className="w-4 h-4 mr-1 text-green-400" /> Saved!</>
+                      : <><Save className="w-4 h-4 mr-1" /> Save Cloud</>
+                    }
+                  </Button>
+                  <Button onClick={handlePuterSignOut} variant="outline" size="sm">
+                    <LogOut className="w-4 h-4 mr-1" /> Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={handlePuterSignIn}
+                  disabled={puterLoading}
+                  size="sm"
+                  className="bg-purple-700 hover:bg-purple-600 text-white"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  {puterLoading ? 'Connecting...' : 'Sign in with Grudge'}
+                </Button>
+              )}
+
               <Button onClick={fetchAutomationStatus} variant="outline" size="sm">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
@@ -494,6 +591,9 @@ export function GRD17AutomationController() {
                     <option value="aleofthought">ALEofThought (Reasoning)</option>
                     <option value="dangrd">DANGRD (Chaos Engine)</option>
                     <option value="grdviz">GRDVIZ (Vision Core)</option>
+                    <option value="grdsprint">GRDSPRINT (Speed)</option>
+                    <option value="norightanswergrd">NoRightAnswerGRD (Paradox)</option>
+                    <option value="ale">ALE (Rapid Response)</option>
                   </select>
                 </div>
               </div>

@@ -2,10 +2,13 @@
  * Real Wallet Manager - GRUDGE STUDIO Solana Wallet Interface
  * Created by RacAlvin The Pirate King for GRUDGE STUDIO
  * All wallet systems are products of GRUDGE STUDIO
- * 
+ *
  * Real Solana blockchain integration - no simulated functionality
+ * Backend: https://api.grudge-studio.com (Grudge Studio VPS via /api/gruda-legion/grd17/blockchain/*)
+ * Storage: Puter.js free cloud — only the public key is stored in cloud; secret key stays device-local.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { grd17Puter, type GrudgeUser } from '../puter-integration';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,10 +25,30 @@ import {
   Coins,
   Activity,
   TrendingUp,
-  Shield
+  Shield,
+  User,
+  LogIn,
+  Cloud,
+  Save
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+
+// Grudge Legion proxy base — all blockchain calls route through here
+const BLOCKCHAIN_BASE = '/api/gruda-legion/grd17/blockchain';
+
+/** Thin fetch wrapper that mirrors apiRequest behaviour */
+async function callApi(path: string, method: 'GET' | 'POST' = 'GET', body?: unknown) {
+  const res = await fetch(path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as any).error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
 
 interface WalletData {
   publicKey: string;
@@ -62,29 +85,85 @@ export function RealWalletManager() {
   const [transferAmount, setTransferAmount] = useState('');
   const [transferTo, setTransferTo] = useState('');
   const [networkStats, setNetworkStats] = useState<any>(null);
+  const [puterUser, setPuterUser] = useState<GrudgeUser | null>(null);
+  const [puterLoading, setPuterLoading] = useState(false);
+  const [cloudSynced, setCloudSynced] = useState(false);
 
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load wallet from localStorage if exists
-    const storedWallet = localStorage.getItem('grudge_studio_wallet');
-    if (storedWallet) {
-      try {
-        const walletData = JSON.parse(storedWallet);
-        setWallet(walletData);
-        loadWalletInfo(walletData.publicKey);
-      } catch (error) {
-        console.error('Failed to load stored wallet:', error);
+    // 1. Restore wallet public key from Puter cloud (if signed in)
+    //    Secret key is NEVER stored in cloud — only device-local storage.
+    const initWallet = async () => {
+      if (grd17Puter.isSignedIn()) {
+        const user = await grd17Puter.signIn();
+        setPuterUser(user);
+        if (user) {
+          const cloudPubKey = await grd17Puter.loadWalletPublicKey();
+          if (cloudPubKey) {
+            // We have the public key from cloud — rebuild a partial wallet
+            // The secret key must still come from local storage
+            const local = localStorage.getItem('grudge_studio_wallet');
+            if (local) {
+              const localData: WalletData = JSON.parse(local);
+              if (localData.publicKey === cloudPubKey) {
+                setWallet(localData);
+                await loadWalletInfo(cloudPubKey);
+                return;
+              }
+            }
+            // Cloud pubkey only (no local match) — show read-only
+            setWallet({ publicKey: cloudPubKey, secretKey: [] });
+            await loadWalletInfo(cloudPubKey);
+            return;
+          }
+        }
       }
-    }
 
+      // Fallback: load from device-local storage
+      const storedWallet = localStorage.getItem('grudge_studio_wallet');
+      if (storedWallet) {
+        try {
+          const walletData = JSON.parse(storedWallet);
+          setWallet(walletData);
+          await loadWalletInfo(walletData.publicKey);
+        } catch (error) {
+          console.error('Failed to load stored wallet:', error);
+        }
+      }
+    };
+
+    initWallet();
     // Load network stats
     loadNetworkStats();
   }, []);
 
+  const handlePuterSignIn = useCallback(async () => {
+    setPuterLoading(true);
+    const user = await grd17Puter.signIn();
+    setPuterUser(user);
+    if (user && wallet) {
+      await grd17Puter.saveWalletPublicKey(wallet.publicKey);
+    }
+    setPuterLoading(false);
+  }, [wallet]);
+
+  const handlePuterSignOut = useCallback(async () => {
+    await grd17Puter.signOut();
+    setPuterUser(null);
+  }, []);
+
+  const syncWalletToCloud = useCallback(async () => {
+    if (!puterUser || !wallet) return;
+    await grd17Puter.saveWalletPublicKey(wallet.publicKey);
+    await grd17Puter.markSynced();
+    setCloudSynced(true);
+    setTimeout(() => setCloudSynced(false), 2000);
+  }, [puterUser, wallet]);
+
   const loadNetworkStats = async () => {
     try {
-      const stats = await apiRequest('/api/blockchain/stats');
+      const stats = await callApi(`${BLOCKCHAIN_BASE}/stats`);
       setNetworkStats(stats);
     } catch (error) {
       console.error('Failed to load network stats:', error);
@@ -94,7 +173,7 @@ export function RealWalletManager() {
   const loadWalletInfo = async (publicKey: string) => {
     try {
       setIsLoading(true);
-      const info = await apiRequest('/api/blockchain/wallet-info', 'POST', { publicKey });
+      const info = await callApi(`${BLOCKCHAIN_BASE}/wallet-info`, 'POST', { publicKey });
       setWalletInfo(info);
     } catch (error: any) {
       toast({
@@ -110,17 +189,22 @@ export function RealWalletManager() {
   const createNewWallet = async () => {
     try {
       setIsLoading(true);
-      const newWallet = await apiRequest('/api/blockchain/create-wallet', 'POST');
-      
+      const newWallet = await callApi(`${BLOCKCHAIN_BASE}/create-wallet`, 'POST');
+
       setWallet(newWallet);
+      // Store full keypair device-local only (never in cloud)
       localStorage.setItem('grudge_studio_wallet', JSON.stringify(newWallet));
-      
+
+      // Sync public key to Puter cloud if signed in
+      if (puterUser) {
+        await grd17Puter.saveWalletPublicKey(newWallet.publicKey);
+      }
+
       toast({
         title: "Wallet Created",
-        description: "New Solana wallet created successfully. Save your secret key securely!",
+        description: "New Solana wallet created. Save your secret key securely!",
       });
 
-      // Load wallet info
       await loadWalletInfo(newWallet.publicKey);
     } catch (error: any) {
       toast({
@@ -138,9 +222,9 @@ export function RealWalletManager() {
 
     try {
       setIsLoading(true);
-      const result = await apiRequest('/api/blockchain/airdrop', 'POST', {
+      const result = await callApi(`${BLOCKCHAIN_BASE}/airdrop`, 'POST', {
         publicKey: wallet.publicKey,
-        amount: 1
+        amount: 1,
       });
 
       toast({
@@ -148,7 +232,6 @@ export function RealWalletManager() {
         description: `1 SOL airdrop initiated. Signature: ${result.signature}`,
       });
 
-      // Refresh wallet info
       setTimeout(() => loadWalletInfo(wallet.publicKey), 3000);
     } catch (error: any) {
       toast({
@@ -166,9 +249,9 @@ export function RealWalletManager() {
 
     try {
       setIsLoading(true);
-      const result = await apiRequest('/api/blockchain/mint-gbux', 'POST', {
+      const result = await callApi(`${BLOCKCHAIN_BASE}/mint-gbux`, 'POST', {
         recipientPublicKey: wallet.publicKey,
-        amount: 1000
+        amount: 1000,
       });
 
       toast({
@@ -176,7 +259,6 @@ export function RealWalletManager() {
         description: `1000 GBUX tokens minted. Signature: ${result.signature}`,
       });
 
-      // Refresh wallet info
       setTimeout(() => loadWalletInfo(wallet.publicKey), 3000);
     } catch (error: any) {
       toast({
@@ -194,10 +276,10 @@ export function RealWalletManager() {
 
     try {
       setIsLoading(true);
-      const result = await apiRequest('/api/blockchain/transfer', 'POST', {
+      const result = await callApi(`${BLOCKCHAIN_BASE}/transfer`, 'POST', {
         fromSecretKey: wallet.secretKey,
         toPublicKey: transferTo,
-        amount: parseFloat(transferAmount)
+        amount: parseFloat(transferAmount),
       });
 
       toast({

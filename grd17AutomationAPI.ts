@@ -2,11 +2,22 @@
  * GRD-17 AI Automation API Integration - GRUDGE STUDIO
  * Created by RacAlvin The Pirate King for GRUDGE STUDIO
  * Complete API integration conditions for AI automation exactly as required
+ *
+ * Production backend: https://api.grudge-studio.com (Grudge Studio VPS)
+ * Source: https://github.com/GrudgeDaDev/gruda_grd-17
  */
 
-import { aleBossAI } from "./aleBossAI";
-import { grudaAPIRegistry } from "./grudaAPIRegistry";
-import { aiTimingCoordinator } from "./aiTimingCoordinator";
+// Grudge Studio VPS backend — all API calls route through here
+export const GRUDGE_BACKEND_URL =
+  typeof process !== 'undefined' && process.env?.GRUDACHAIN_URL
+    ? process.env.GRUDACHAIN_URL
+    : 'https://api.grudge-studio.com';
+
+// Optional companion service stubs (only active when co-deployed)
+let aleBossAI: { forceResourceSync?: () => void } | null = null;
+let aiTimingCoordinator: { forceSync?: () => void } | null = null;
+try { aleBossAI = require('./aleBossAI')?.aleBossAI ?? null; } catch {}
+try { aiTimingCoordinator = require('./aiTimingCoordinator')?.aiTimingCoordinator ?? null; } catch {}
 
 interface APICondition {
   endpoint: string;
@@ -401,8 +412,8 @@ class GRD17AutomationAPIService {
 
   private async evaluateCondition(rule: AutomationRule, condition: APICondition) {
     try {
-      // Make API call to check condition
-      const response = await fetch(`http://localhost:5000${condition.endpoint}`, {
+      // Make API call to check condition — routed via Grudge Studio backend
+      const response = await fetch(`${GRUDGE_BACKEND_URL}${condition.endpoint}`, {
         method: condition.method,
         headers: {
           'Content-Type': 'application/json'
@@ -565,7 +576,7 @@ class GRD17AutomationAPIService {
 
     if (item && item.rule.priority > 1) {
       try {
-        const response = await fetch(`http://localhost:5000${item.condition.endpoint}`);
+      const response = await fetch(`${GRUDGE_BACKEND_URL}${item.condition.endpoint}`);
         const data = await response.json();
         await this.executeActions(item.rule, item.condition, data);
       } catch (error) {
@@ -675,14 +686,14 @@ class GRD17AutomationAPIService {
     }
   }
 
-  public getAPIRegistry() {
-    return grudaAPIRegistry.getAllAPIs();
+  public getBackendUrl(): string {
+    return GRUDGE_BACKEND_URL;
   }
 
   public testCondition(endpoint: string, condition: string): Promise<boolean> {
     return new Promise(async (resolve) => {
       try {
-        const response = await fetch(`http://localhost:5000${endpoint}`);
+        const response = await fetch(`${GRUDGE_BACKEND_URL}${endpoint}`);
         const data = await response.json();
         const result = this.evaluateConditionLogic(data, condition);
         resolve(result);
