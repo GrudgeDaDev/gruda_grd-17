@@ -78,6 +78,33 @@ declare const puter: {
     write(path: string, data: string, options?: { createMissingParents?: boolean }): Promise<void>;
     read(path: string): Promise<{ text(): Promise<string> }>;
   };
+  /** Puter AI — 500+ models free via GRUDACHAIN membership (User-Pays model) */
+  ai: {
+    chat(
+      prompt: string | Array<{ role: string; content: string }>,
+      options?: {
+        model?: string;
+        stream?: boolean;
+        temperature?: number;
+        max_tokens?: number;
+      }
+    ): Promise<
+      | { message: { content: string | Array<{ type: string; text: string }> } }
+      | AsyncIterable<{ text?: string }>
+    >;
+    txt2img(
+      prompt: string,
+      testMode?: boolean,
+      options?: { model?: string }
+    ): Promise<HTMLImageElement>;
+    listModels(
+      provider?: string
+    ): Promise<Array<{ id: string; provider: string; name?: string }>>;
+    txt2speech(
+      text: string,
+      options?: { voice?: string; engine?: string; language?: string }
+    ): Promise<HTMLAudioElement>;
+  };
 };
 
 function getPuter() {
