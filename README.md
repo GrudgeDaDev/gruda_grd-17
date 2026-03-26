@@ -1,7 +1,127 @@
-# gruda_grd-17
-A DATA SOLUTION AND SECURITY CHAIN
-GRUDGE AI Models - Complete System Specifications
-This document defines all GRUDGE AI models in the GRUDGE STUDIO ecosystem, maintaining individual specializations while establishing proper GRUDGE AI branding.
+# GRUDACHAIN · GRD-17
+
+**A Data Solution and Security Chain** — GRUDGE STUDIO
+
+> 9 specialized AI cores · 500+ models via Puter · Persistent memory · Rate-limited · Production-ready
+
+[![Docs](https://img.shields.io/badge/docs-grudgedadev.github.io-7c3aed)](https://grudgedadev.github.io/gruda_grd-17/)
+[![API](https://img.shields.io/badge/API-api.grudge--studio.com-10b981)](https://api.grudge-studio.com)
+[![Version](https://img.shields.io/badge/version-GRD--17.2.1-4f46e5)](#)
+
+---
+
+## Overview
+
+GRD-17 is the AI data layer for GRUDGE STUDIO. It powers the **GRUDA Legion** — nine specialized AI cores backed by the GRUDACHAIN Puter account's paid membership. Every user's conversation history is persisted in Puter KV/FS so models always know their full context with each user.
+
+## AI Cores → Puter Model Map
+
+| Core ID | Name | Best At | Puter Model |
+|---|---|---|---|
+| `grd17` | GRD1.7 System Core | Architecture, security | `claude-sonnet-4-5` |
+| `grd27` | GRD2.7 Deep Logic | Complex reasoning | `gpt-5.2` |
+| `dangrd` | DANGRD Chaos Engine | Creative disruption | `gpt-5.4` |
+| `grdviz` | GRDVIZ Visual Core | UI/UX, data viz | `gpt-5.4-nano` |
+| `norightanswergrd` | NoRightAnswerGRD | Paradox resolution | `deepseek/deepseek-r1` |
+| `grdsprint` | GRDSPRINT Speed | Performance, speed | `gpt-5-nano` |
+| `aleofthought` | ALEofThought | Reasoning chains | `claude-sonnet-4-5` |
+| `ale` | ALE Rapid Response | Emergency, instant | `gpt-5-nano` |
+| `aleboss` | ALEBOSS Coordinator | Strategic oversight | `gpt-5.2-chat` |
+
+## Quick Start
+
+```html
+<!-- 1. Include Puter SDK -->
+<script src="https://js.puter.com/v2/"></script>
+```
+
+```ts
+// 2. Sign in + use Legion AI (memory enabled)
+import { grudaLegionAI } from './puter-ai-legion';
+
+const user = await puter.auth.getUser();
+const result = await grudaLegionAI.chat('Design a leveling system', {
+  core:   'grd17',
+  userId: user.uuid,   // enables persistent memory
+});
+console.log(result.text, result.model, result.source);
+// → "..." | "claude-sonnet-4-5" | "puter"
+```
+
+## Key Files
+
+| File | Purpose |
+|---|---|
+| `puter-ai-legion.ts` | Main Legion AI service with core mapping + chat/stream |
+| `puter-memory.ts` | Persistent conversation history via Puter KV + FS |
+| `rate-limiter.ts` | Token bucket: 10 req/min, 100/day, 500ms debounce |
+| `puter-integration.ts` | Puter auth, wallet, automation config storage |
+| `grd17AutomationAPI.ts` | Automation rule engine (routes to Grudge VPS) |
+| `GRD17AutomationController.tsx` | React UI for automation management |
+| `blockchain/RealWalletManager.tsx` | Solana wallet UI (public key synced to Puter) |
+| `docs/index.html` | GitHub Pages documentation site |
+
+## Production Environment Variables
+
+```env
+# Grudge Studio VPS
+GRUDACHAIN_URL=https://api.grudge-studio.com
+GAME_API_GRUDA=https://api.grudge-studio.com
+
+# Puter AI — GRUDACHAIN paid account API key
+PUTER_API_KEY=your_grudachain_puter_api_key
+
+# Fallback providers (optional)
+LEGION_HUB_API_KEY=...
+XAI_API_KEY=...
+```
+
+Get `PUTER_API_KEY` from [puter.com](https://puter.com) → Account Settings → API Keys (GRUDACHAIN account).
+
+## Rate Limits
+
+- **10 requests/minute** per core per user (token bucket, auto-refills)
+- **100 requests/day** per core per user (resets at midnight UTC, tracked in Puter KV)
+- **500ms debounce** minimum between calls to the same core
+- **Exponential backoff** on failures (1s → 2s → 4s → … max 30s)
+- **Automation polling**: minimum 30s interval (enforced by `rateLimiter.shouldPoll()`)
+
+## Memory System
+
+Conversation history stored per user per core:
+- **Puter KV** (fast read/write, 30-day rolling TTL)
+- **Puter FS** backup at `/GRUDA/grd17/memory/{coreId}/{userId}.json`
+- Max 20 messages kept (10 user + 10 assistant turns)
+- User relationship profile: topics, style, active projects
+
+```ts
+import { grd17Memory } from './puter-memory';
+await grd17Memory.clearHistory('grd17', userId);  // reset a core's history
+await grd17Memory.updateProfile('grd17', userId, { interactionStyle: 'technical' });
+```
+
+## API Endpoints
+
+All served via `https://api.grudge-studio.com`:
+
+```
+POST /api/gruda-legion/puter-ai/chat     — Puter AI chat (server-side)
+GET  /api/gruda-legion/puter-ai/models   — Core → model map
+GET  /api/gruda-legion/puter-ai/status   — Provider chain status
+GET  /api/gruda-legion/grd17/model-info  — Full core metadata
+POST /api/gruda-legion/grd17/chat        — GRD-17 model chat
+GET  /api/gruda-legion/grd17/automation/status
+GET  /api/gruda-legion/grd17/blockchain/stats
+POST /api/gruda-legion/grd17/blockchain/create-wallet
+```
+
+## Documentation
+
+Full documentation: **https://grudgedadev.github.io/gruda_grd-17/**
+
+---
+
+*Version GRD-17.2.1 · Last Updated: March 2026 · Created by RacAlvin The Pirate King for GRUDGE STUDIO*
 
 GRUDGE AI Model Specifications
 GRD1.7 - GRUDGE AI Primary Core

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GRUDACHAIN — GRD-17 AI Legion</title>
+<meta name="description" content="GRUDGE STUDIO AI Legion documentation. GRD-17 data solution, security chain, and AI model integration guide." />
+<style>
+  :root {
+    --grudge-bg:         #0a0a0f;
+    --grudge-surface:    #111118;
+    --grudge-border:     #1e1e2e;
+    --grudge-accent:     #7c3aed;
+    --grudge-accent2:    #4f46e5;
+    --grudge-gold:       #f59e0b;
+    --grudge-green:      #10b981;
+    --grudge-red:        #ef4444;
+    --grudge-text:       #e2e8f0;
+    --grudge-muted:      #64748b;
+    --grudge-code-bg:    #0d1117;
+    --font-mono:         'Fira Code', 'Consolas', monospace;
+    --font-sans:         'Inter', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--grudge-bg);
+    color: var(--grudge-text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--grudge-border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-brand svg { width: 28px; height: 28px; }
+  .nav-brand span { font-weight: 700; font-size: 1.1rem; color: var(--grudge-text); }
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+  .nav-links a { color: var(--grudge-muted); text-decoration: none; font-size: 0.875rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--grudge-text); }
+  .nav-badge {
+    background: var(--grudge-accent);
+    color: #fff; font-size: 0.7rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px; letter-spacing: .05em;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 6rem 2rem 4rem;
+    max-width: 900px; margin: 0 auto;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(124,58,237,.15);
+    border: 1px solid rgba(124,58,237,.4);
+    color: #a78bfa;
+    font-size: .75rem; font-weight: 600; letter-spacing: .08em;
+    padding: 4px 14px; border-radius: 999px;
+    margin-bottom: 1.5rem; text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800; line-height: 1.15;
+    background: linear-gradient(135deg, #fff 30%, #a78bfa 70%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+  .hero p {
+    color: var(--grudge-muted); font-size: 1.1rem; max-width: 620px; margin: 0 auto 2rem;
+  }
+  .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 22px; border-radius: 8px;
+    font-size: .9rem; font-weight: 600; text-decoration: none; transition: all .2s;
+  }
+  .btn-primary { background: var(--grudge-accent); color: #fff; }
+  .btn-primary:hover { background: #6d28d9; }
+  .btn-outline { border: 1px solid var(--grudge-border); color: var(--grudge-text); }
+  .btn-outline:hover { border-color: var(--grudge-accent); color: #a78bfa; }
+
+  /* ── Layout ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+  section { padding: 4rem 0; border-top: 1px solid var(--grudge-border); }
+  h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; }
+  h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: .5rem; color: #a78bfa; }
+  p { color: var(--grudge-muted); margin-bottom: 1rem; }
+
+  /* ── Core grid ── */
+  .core-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .core-card {
+    background: var(--grudge-surface);
+    border: 1px solid var(--grudge-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .core-card:hover { border-color: var(--grudge-accent); transform: translateY(-2px); }
+  .core-card .tag {
+    display: inline-block; font-family: var(--font-mono); font-size: .75rem;
+    background: rgba(124,58,237,.15); color: #a78bfa;
+    padding: 2px 8px; border-radius: 4px; margin-bottom: .5rem;
+  }
+  .core-card .model {
+    font-family: var(--font-mono); font-size: .75rem; color: var(--grudge-green);
+    margin-top: .5rem;
+  }
+  .core-card p { font-size: .85rem; margin: 0; }
+
+  /* ── API table ── */
+  .api-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+  .api-table th {
+    text-align: left; font-size: .75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--grudge-muted);
+    padding: .75rem 1rem; border-bottom: 1px solid var(--grudge-border);
+  }
+  .api-table td {
+    padding: .75rem 1rem; font-size: .875rem;
+    border-bottom: 1px solid rgba(30,30,46,.6);
+    vertical-align: top;
+  }
+  .api-table tr:hover td { background: rgba(124,58,237,.05); }
+  .method {
+    font-family: var(--font-mono); font-size: .75rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  .method-get  { background: rgba(16,185,129,.15); color: #10b981; }
+  .method-post { background: rgba(79,70,229,.15);  color: #818cf8; }
+  code {
+    font-family: var(--font-mono); font-size: .8rem;
+    background: var(--grudge-code-bg); color: #93c5fd;
+    padding: 1px 6px; border-radius: 4px;
+  }
+  pre {
+    background: var(--grudge-code-bg); border: 1px solid var(--grudge-border);
+    border-radius: 10px; padding: 1.25rem;
+    overflow-x: auto; font-family: var(--font-mono); font-size: .82rem;
+    line-height: 1.6; color: #e2e8f0; margin-bottom: 1.5rem;
+  }
+  pre .kw  { color: #c084fc; }
+  pre .str { color: #86efac; }
+  pre .cmt { color: #4b5563; font-style: italic; }
+  pre .key { color: #93c5fd; }
+
+  /* ── Callouts ── */
+  .callout {
+    border-left: 3px solid var(--grudge-accent);
+    background: rgba(124,58,237,.06);
+    padding: 1rem 1.25rem; border-radius: 0 8px 8px 0;
+    margin-bottom: 1.25rem;
+  }
+  .callout.green { border-color: var(--grudge-green); background: rgba(16,185,129,.06); }
+  .callout.yellow { border-color: var(--grudge-gold); background: rgba(245,158,11,.06); }
+  .callout p { margin: 0; font-size: .875rem; color: var(--grudge-text); }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+  .checklist li { display: flex; align-items: flex-start; gap: .75rem; font-size: .9rem; color: var(--grudge-muted); }
+  .checklist li::before {
+    content: '✓'; color: var(--grudge-green); font-weight: 700;
+    flex-shrink: 0; margin-top: .1rem;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 3rem 2rem;
+    border-top: 1px solid var(--grudge-border);
+    color: var(--grudge-muted); font-size: .875rem;
+  }
+  footer a { color: #a78bfa; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .hero { padding: 4rem 1rem 2rem; }
+    .api-table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <a class="nav-brand" href="#">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="14" r="13" stroke="#7c3aed" stroke-width="1.5"/>
+      <path d="M8 14l4 4 8-8" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>GRUDACHAIN</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#cores">AI Cores</a></li>
+    <li><a href="#api">API Reference</a></li>
+    <li><a href="#memory">Memory</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#best-practices">Best Practices</a></li>
+    <li><a href="https://github.com/GrudgeDaDev/gruda_grd-17" target="_blank">GitHub ↗</a></li>
+  </ul>
+  <span class="nav-badge">GRD-17.2</span>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-badge">GRUDGE STUDIO · GRUDA AI Legion</div>
+  <h1>GRD-17 Data Solution<br>&amp; Security Chain</h1>
+  <p>
+    Nine specialized AI cores powered by the GRUDACHAIN Puter membership.
+    500+ models. Persistent memory. Rate-limited. Production-ready.
+  </p>
+  <div class="hero-buttons">
+    <a class="btn btn-primary" href="#quickstart">Get Started</a>
+    <a class="btn btn-outline" href="https://github.com/GrudgeDaDev/gruda_grd-17" target="_blank">View Source</a>
+  </div>
+</div>
+
+<!-- ── AI Cores ── -->
+<section id="cores">
+  <div class="container">
+    <h2>GRD-17 AI Legion Cores</h2>
+    <p>Each core is a specialized AI personality mapped to the best-fit Puter model. Sign in as <strong>GRUDACHAIN</strong> on Puter to activate — no API keys required.</p>
+    <div class="core-grid">
+
+      <div class="core-card">
+        <div class="tag">grd17</div>
+        <h3>GRD1.7 · System Core</h3>
+        <p>System architecture, foundation logic, security protocols. The primary coordinator of the Legion.</p>
+        <div class="model">→ claude-sonnet-4-5</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">grd27</div>
+        <h3>GRD2.7 · Deep Logic</h3>
+        <p>Advanced reasoning, multi-step inference, complex problem solving from first principles.</p>
+        <div class="model">→ gpt-5.2</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">dangrd</div>
+        <h3>DANGRD · Chaos Engine</h3>
+        <p>Creative disruption, unconventional solutions, chaos theory application. Breaks patterns.</p>
+        <div class="model">→ gpt-5.4</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">grdviz</div>
+        <h3>GRDVIZ · Visual Core</h3>
+        <p>Visual design, data presentation, UI/UX optimization. Makes complex data beautiful.</p>
+        <div class="model">→ gpt-5.4-nano</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">norightanswergrd</div>
+        <h3>NoRightAnswerGRD · Paradox</h3>
+        <p>Paradox resolution, edge case handling, alternative logic. Thrives in ambiguity.</p>
+        <div class="model">→ deepseek/deepseek-r1</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">grdsprint</div>
+        <h3>GRDSPRINT · Speed Core</h3>
+        <p>Performance optimization, throughput maximization. Fast, efficient, minimal output.</p>
+        <div class="model">→ gpt-5-nano</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">aleofthought</div>
+        <h3>ALEofThought · Reasoning</h3>
+        <p>Complex reasoning chains, thought process modeling. Full step-by-step logic paths.</p>
+        <div class="model">→ claude-sonnet-4-5</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">ale</div>
+        <h3>ALE · Rapid Response</h3>
+        <p>Emergency processing, crisis management. Direct, decisive, no fluff.</p>
+        <div class="model">→ gpt-5-nano</div>
+      </div>
+
+      <div class="core-card">
+        <div class="tag">aleboss</div>
+        <h3>ALEBOSS · Boss Coordinator</h3>
+        <p>Strategic oversight, multi-agent coordination, resource allocation at the highest level.</p>
+        <div class="model">→ gpt-5.2-chat</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Quick Start ── -->
+<section id="quickstart">
+  <div class="container">
+    <h2>Quick Start</h2>
+
+    <h3>1. Include Puter SDK + sign in as GRUDACHAIN</h3>
+    <pre><span class="cmt">&lt;!-- Add to your HTML head --&gt;</span>
+&lt;script src=<span class="str">"https://js.puter.com/v2/"</span>&gt;&lt;/script&gt;
+
+<span class="cmt">// Sign in with the GRUDACHAIN Puter account</span>
+<span class="kw">await</span> puter.auth.signIn();
+<span class="kw">const</span> user = <span class="kw">await</span> puter.auth.getUser();
+<span class="cmt">// user.uuid is the userId to pass to grudaLegionAI</span></pre>
+
+    <h3>2. Import grudaLegionAI</h3>
+    <pre><span class="kw">import</span> { grudaLegionAI } <span class="kw">from</span> <span class="str">'./puter-ai-legion'</span>;
+
+<span class="cmt">// Chat with persistent memory + rate limiting built-in</span>
+<span class="kw">const</span> result = <span class="kw">await</span> grudaLegionAI.chat(<span class="str">"Design a leveling system"</span>, {
+  core:   <span class="str">'grd17'</span>,        <span class="cmt">// which GRD-17 core to use</span>
+  userId: user.uuid,        <span class="cmt">// enables persistent memory</span>
+});
+
+console.log(result.text, result.model, result.source);
+<span class="cmt">// "Here is a leveling system..." | "claude-sonnet-4-5" | "puter"</span></pre>
+
+    <h3>3. Streaming with memory</h3>
+    <pre><span class="kw">for await</span> (<span class="kw">const</span> chunk <span class="kw">of</span> grudaLegionAI.stream(<span class="str">"Optimize this query"</span>, {
+  core:   <span class="str">'grdsprint'</span>,
+  userId: user.uuid,
+})) {
+  process.stdout.write(chunk);
+}</pre>
+
+    <h3>4. Convenience core methods</h3>
+    <pre>grudaLegionAI.grd17(<span class="str">"msg"</span>, { userId })   <span class="cmt">// System Core</span>
+grudaLegionAI.grd27(<span class="str">"msg"</span>, { userId })   <span class="cmt">// Deep Logic</span>
+grudaLegionAI.dangrd(<span class="str">"msg"</span>, { userId })  <span class="cmt">// Chaos Engine</span>
+grudaLegionAI.aleboss(<span class="str">"msg"</span>, { userId }) <span class="cmt">// Boss Coordinator</span></pre>
+  </div>
+</section>
+
+<!-- ── API Reference ── -->
+<section id="api">
+  <div class="container">
+    <h2>API Reference</h2>
+    <p>All routes are served from <code>https://api.grudge-studio.com</code> via the Gruda Legion proxy.</p>
+
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method method-post">POST</span></td>
+          <td><code>/api/gruda-legion/puter-ai/chat</code></td>
+          <td>Server-side Puter AI chat. Body: <code>{ message, core?, model?, temperature?, maxTokens?, userId? }</code></td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/api/gruda-legion/puter-ai/models</code></td>
+          <td>Returns GRD-17 core → Puter model map + all 9 core definitions</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/api/gruda-legion/puter-ai/status</code></td>
+          <td>Provider chain status, GRUDACHAIN membership, model count</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/api/gruda-legion/grd17/model-info</code></td>
+          <td>Full GRD-17 core metadata, Puter storage config</td>
+        </tr>
+        <tr>
+          <td><span class="method method-post">POST</span></td>
+          <td><code>/api/gruda-legion/grd17/chat</code></td>
+          <td>GRD-17 model-aware chat. Body: <code>{ message, model, temperature }</code></td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/api/gruda-legion/grd17/automation/status</code></td>
+          <td>GRD-17 automation rule status</td>
+        </tr>
+        <tr>
+          <td><span class="method method-post">POST</span></td>
+          <td><code>/api/gruda-legion/grd17/automation/execute/:ruleId</code></td>
+          <td>Force-execute an automation rule</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/api/gruda-legion/grd17/blockchain/stats</code></td>
+          <td>Solana blockchain stats (network, slots, validators)</td>
+        </tr>
+        <tr>
+          <td><span class="method method-post">POST</span></td>
+          <td><code>/api/gruda-legion/grd17/blockchain/create-wallet</code></td>
+          <td>Create new Solana wallet. Returns <code>{ publicKey, secretKey }</code></td>
+        </tr>
+        <tr>
+          <td><span class="method method-post">POST</span></td>
+          <td><code>/api/gruda-legion/grd17/blockchain/mint-gbux</code></td>
+          <td>Mint GBUX tokens. Body: <code>{ recipientPublicKey, amount }</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout green">
+      <p><strong>Rate limits:</strong> 10 req/min · 100 req/day per core per user · 500ms debounce · exponential backoff on failures</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Memory System ── -->
+<section id="memory">
+  <div class="container">
+    <h2>Persistent AI Memory</h2>
+    <p>Every user's conversation history with each Legion core is stored in <strong>Puter KV + FS</strong>. No cold starts — users pick up right where they left off.</p>
+
+    <h3>Storage layout</h3>
+    <pre><span class="cmt">// Puter KV (fast, rolling 30-day TTL)</span>
+<span class="key">"grudge_grd17_hist_{coreId}_{userId}"</span>  → <span class="str">CoreMemory JSON</span>
+
+<span class="cmt">// Puter FS (persistent backup)</span>
+<span class="key">/GRUDA/grd17/memory/{coreId}/{userId}.json</span></pre>
+
+    <h3>Managing history</h3>
+    <pre><span class="kw">import</span> { grd17Memory } <span class="kw">from</span> <span class="str">'./puter-memory'</span>;
+
+<span class="cmt">// Load a user's history with a core</span>
+<span class="kw">const</span> mem = <span class="kw">await</span> grd17Memory.loadMemory(<span class="str">'grd17'</span>, userId);
+
+<span class="cmt">// Get a summary for the UI</span>
+<span class="kw">const</span> summary = <span class="kw">await</span> grd17Memory.getSummary(<span class="str">'grd17'</span>, userId);
+<span class="cmt">// { messageCount, totalInteractions, firstSeen, lastSeen, profile }</span>
+
+<span class="cmt">// Clear history for a core</span>
+<span class="kw">await</span> grd17Memory.clearHistory(<span class="str">'grd17'</span>, userId);
+
+<span class="cmt">// Update user relationship profile</span>
+<span class="kw">await</span> grd17Memory.updateProfile(<span class="str">'grd17'</span>, userId, {
+  interactionStyle: <span class="str">'technical'</span>,
+  activeProjects: [<span class="str">'grudge-mmo'</span>, <span class="str">'gruda-wars'</span>],
+});</pre>
+
+    <div class="callout yellow">
+      <p><strong>Privacy:</strong> Secret keys and sensitive data are NEVER stored in Puter cloud. Only public keys, chat history, and preference profiles.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Deployment ── -->
+<section id="deployment">
+  <div class="container">
+    <h2>Production Deployment</h2>
+
+    <h3>Required environment variables</h3>
+    <pre><span class="cmt"># Grudge Studio VPS (api.grudge-studio.com)</span>
+<span class="key">GRUDACHAIN_URL</span>=https://api.grudge-studio.com
+<span class="key">GAME_API_GRUDA</span>=https://api.grudge-studio.com
+
+<span class="cmt"># Puter AI — GRUDACHAIN account key from puter.com account settings</span>
+<span class="key">PUTER_API_KEY</span>=your_grudachain_puter_api_key
+
+<span class="cmt"># Optional fallback providers</span>
+<span class="key">LEGION_HUB_API_KEY</span>=...    <span class="cmt"># ai.grudge-studio.com</span>
+<span class="key">XAI_API_KEY</span>=...           <span class="cmt"># Grok fallback</span></pre>
+
+    <h3>AI provider chain</h3>
+    <pre><span class="cmt">// Priority order (automatic fallback)</span>
+1. Puter AI (GRUDACHAIN account)  ← <span class="str">primary — 500+ models, free</span>
+2. Legion Hub (ai.grudge-studio.com)
+3. Grok (xAI)                     ← last resort</pre>
+
+    <h3>Vercel / Coolify checklist</h3>
+    <ul class="checklist">
+      <li>Set <code>PUTER_API_KEY</code> from GRUDACHAIN puter.com account settings</li>
+      <li>Set <code>GRUDACHAIN_URL=https://api.grudge-studio.com</code></li>
+      <li>Include <code>&lt;script src="https://js.puter.com/v2/"&gt;&lt;/script&gt;</code> in client HTML</li>
+      <li>Add <code>@heyputer/puter.js</code> to server <code>package.json</code> (already done)</li>
+      <li>Ensure Cloudflare CNAME for <code>api.grudge-studio.com</code> points to VPS</li>
+      <li>Enable CORS headers on the backend for your frontend origin</li>
+      <li>Set HTTPS on all endpoints — Puter requires secure context</li>
+      <li>Configure server-side rate limiting (already wired in <code>grudaLegion.ts</code>)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── Best Practices ── -->
+<section id="best-practices">
+  <div class="container">
+    <h2>Best Practices</h2>
+
+    <h3>API call management</h3>
+    <ul class="checklist">
+      <li>Pass <code>userId</code> to every <code>grudaLegionAI.chat()</code> call — enables memory AND rate limiting</li>
+      <li>Use <code>rateLimiter.shouldPoll()</code> before automation status checks (throttled to 30s intervals)</li>
+      <li>Prefer <code>grudaLegionAI.stream()</code> for long responses — avoids timeouts</li>
+      <li>Never poll <code>/api/gruda-legion/grd17/automation/status</code> faster than 30 seconds</li>
+      <li>Cache <code>/api/gruda-legion/puter-ai/models</code> on app init — models don't change often</li>
+      <li>Wrap all AI calls in try/catch — rate limit errors include <code>retryAfterMs</code></li>
+    </ul>
+
+    <h3>Memory / storage</h3>
+    <ul class="checklist">
+      <li>All Puter KV keys start with <code>grudge_grd17_</code> — never deviate from this prefix</li>
+      <li>Store public keys in cloud; keep secret keys in <code>localStorage</code> only</li>
+      <li>Call <code>grd17Memory.updateProfile()</code> after learning user preferences</li>
+      <li>Maximum 20 messages per core per user in history (auto-trimmed)</li>
+      <li>Puter FS writes are async fire-and-forget — don't await them in hot paths</li>
+    </ul>
+
+    <h3>Core selection</h3>
+    <ul class="checklist">
+      <li>Use <code>grd17</code> for architecture, security, system design</li>
+      <li>Use <code>grdsprint</code> or <code>ale</code> for fast, low-latency responses</li>
+      <li>Use <code>grd27</code> or <code>aleofthought</code> for complex multi-step reasoning</li>
+      <li>Use <code>dangrd</code> for creative, unconventional ideation</li>
+      <li>Use <code>aleboss</code> to coordinate multiple Legion calls in a workflow</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>GRUDACHAIN account:</strong> Get your <code>PUTER_API_KEY</code> from <a href="https://puter.com" style="color:#a78bfa">puter.com</a> → Account Settings → API Keys. This single key authenticates all server-side Puter AI calls.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>
+    <strong>GRUDACHAIN · GRD-17</strong> — A Data Solution and Security Chain<br>
+    Created by <strong>RacAlvin The Pirate King</strong> for <strong>GRUDGE STUDIO</strong><br>
+    <a href="https://github.com/GrudgeDaDev/gruda_grd-17">GitHub</a> ·
+    <a href="https://api.grudge-studio.com">API</a> ·
+    <a href="https://grudge-studio.com">Grudge Studio</a> ·
+    <a href="https://puter.com">Puter</a>
+  </p>
+</footer>
+
+</body>
+</html>

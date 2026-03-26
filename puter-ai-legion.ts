@@ -13,6 +13,8 @@
  */
 
 import { GRUDGE_BACKEND_URL } from './grd17AutomationAPI';
+import { grd17Memory } from './puter-memory';
+import { rateLimiter } from './rate-limiter';
 
 // ── GRD-17 Core → Puter AI Model Mapping ─────────────────────────────────────
 // Each core is mapped to the Puter model that best matches its specialization.
@@ -106,11 +108,14 @@ export interface LegionChatMessage {
 
 export interface LegionChatOptions {
   core?: string;           // GRD-17 core ID (defaults to 'grd17')
+  userId?: string;         // Puter user UUID — enables persistent memory
   temperature?: number;
   maxTokens?: number;
   stream?: boolean;
-  history?: LegionChatMessage[];
+  history?: LegionChatMessage[];  // manual override; auto-loaded from memory if userId provided
   context?: Record<string, unknown>;
+  skipMemory?: boolean;    // set true to disable memory for this call
+  skipRateLimit?: boolean; // set true to bypass rate limiting (admin use only)
 }
 
 export interface LegionChatResponse {
@@ -192,18 +197,38 @@ class GRD17PuterAILegion {
     userMessage: string,
     options: LegionChatOptions = {},
   ): Promise<LegionChatResponse> {
-    const core = options.core ?? 'grd17';
-    const model = this.getModelForCore(core);
-    const systemPrompt = this.getSystemPrompt(core);
+    const core   = options.core   ?? 'grd17';
+    const userId = options.userId ?? 'anonymous';
+    const model  = this.getModelForCore(core);
 
-    // Build messages array with system prompt + optional history
+    // ── Rate limiting ──────────────────────────────────────────────────────
+    if (!options.skipRateLimit) {
+      const allowed = await rateLimiter.check(core, userId);
+      if (!allowed.ok) {
+        throw new Error(`[GRD-17 rate limit] ${allowed.reason} (retry in ${Math.ceil((allowed.retryAfterMs ?? 0) / 1000)}s)`);
+      }
+    }
+
+    // ── Load conversation history from Puter memory ────────────────────────
+    let historyMessages: LegionChatMessage[] = options.history ?? [];
+    if (!options.skipMemory && options.userId) {
+      const mem = await grd17Memory.loadMemory(core, userId);
+      const contextMsgs = grd17Memory.getMessagesForContext(mem);
+      // Merge: memory context + any manually passed history
+      historyMessages = [
+        ...contextMsgs as LegionChatMessage[],
+        ...historyMessages,
+      ];
+    }
+
+    const systemPrompt = this.getSystemPrompt(core);
     const messages: LegionChatMessage[] = [
       { role: 'system', content: systemPrompt },
-      ...(options.history ?? []),
+      ...historyMessages,
       { role: 'user', content: userMessage },
     ];
 
-    // Try Puter AI first (uses GRUDACHAIN membership quota)
+    // ── Try Puter AI first (GRUDACHAIN membership quota) ──────────────────
     const p = getPuter();
     if (p && p.auth.isSignedIn()) {
       try {
@@ -220,21 +245,30 @@ class GRD17PuterAILegion {
             ? (content[0] as any)?.text ?? ''
             : String(content ?? '');
 
+        // ── Persist exchange to memory ─────────────────────────────────────
+        if (!options.skipMemory && options.userId) {
+          grd17Memory.addExchange(core, userId, userMessage, text, { model, source: 'puter' })
+            .catch(() => {});  // async, don't block response
+        }
+
+        rateLimiter.recordSuccess(core, userId);
         console.log(`✅ GRD-17 [${core.toUpperCase()}] via Puter AI (${model})`);
-        return {
-          text,
-          core,
-          model,
-          source: 'puter',
-          timestamp: new Date().toISOString(),
-        };
+        return { text, core, model, source: 'puter', timestamp: new Date().toISOString() };
       } catch (err: any) {
+        rateLimiter.recordFailure(core, userId);
         console.warn(`⚠️ GRD-17: Puter AI failed for ${core} (${model}): ${err.message} — falling back to Grudge backend`);
       }
     }
 
-    // Fallback: Grudge Legion backend
-    return this.chatViaBackend(userMessage, core, model, messages, options);
+    // ── Fallback: Grudge Legion backend ───────────────────────────────────
+    const result = await this.chatViaBackend(userMessage, core, model, messages, options);
+
+    if (!options.skipMemory && options.userId) {
+      grd17Memory.addExchange(core, userId, userMessage, result.text, { model, source: 'grudge-backend' })
+        .catch(() => {});
+    }
+
+    return result;
   }
 
   // ── Streaming chat ───────────────────────────────────────────────────────
@@ -243,13 +277,32 @@ class GRD17PuterAILegion {
     userMessage: string,
     options: LegionChatOptions = {},
   ): AsyncGenerator<string, void, unknown> {
-    const core = options.core ?? 'grd17';
-    const model = this.getModelForCore(core);
-    const systemPrompt = this.getSystemPrompt(core);
+    const core   = options.core   ?? 'grd17';
+    const userId = options.userId ?? 'anonymous';
+    const model  = this.getModelForCore(core);
 
+    // Rate limit before streaming
+    if (!options.skipRateLimit) {
+      const allowed = await rateLimiter.check(core, userId);
+      if (!allowed.ok) {
+        throw new Error(`[GRD-17 rate limit] ${allowed.reason}`);
+      }
+    }
+
+    // Load history
+    let historyMessages: LegionChatMessage[] = options.history ?? [];
+    if (!options.skipMemory && options.userId) {
+      const mem = await grd17Memory.loadMemory(core, userId);
+      historyMessages = [
+        ...grd17Memory.getMessagesForContext(mem) as LegionChatMessage[],
+        ...historyMessages,
+      ];
+    }
+
+    const systemPrompt = this.getSystemPrompt(core);
     const messages: LegionChatMessage[] = [
       { role: 'system', content: systemPrompt },
-      ...(options.history ?? []),
+      ...historyMessages,
       { role: 'user', content: userMessage },
     ];
 
@@ -262,17 +315,33 @@ class GRD17PuterAILegion {
           temperature: options.temperature ?? 0.7,
         }) as AsyncIterable<{ text?: string }>;
 
+        let fullText = '';
         for await (const chunk of resp) {
-          if (chunk?.text) yield chunk.text;
+          if (chunk?.text) {
+            fullText += chunk.text;
+            yield chunk.text;
+          }
         }
+
+        // Persist full streamed response to memory
+        if (!options.skipMemory && options.userId && fullText) {
+          grd17Memory.addExchange(core, userId, userMessage, fullText, { model, source: 'puter' })
+            .catch(() => {});
+        }
+        rateLimiter.recordSuccess(core, userId);
         return;
       } catch (err: any) {
+        rateLimiter.recordFailure(core, userId);
         console.warn(`⚠️ GRD-17: Puter AI stream failed for ${core}: ${err.message}`);
       }
     }
 
     // Fallback non-streaming backend call
     const result = await this.chatViaBackend(userMessage, core, model, messages, options);
+    if (!options.skipMemory && options.userId) {
+      grd17Memory.addExchange(core, userId, userMessage, result.text, { model, source: 'grudge-backend' })
+        .catch(() => {});
+    }
     yield result.text;
   }
 
