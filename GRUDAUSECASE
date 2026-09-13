@@ -1,0 +1,683 @@
+# Wallet Platform Integration Guide
+## www.grudgeplatform.com/wallet → GRUDA Node App Integration
+
+### Overview
+
+The GRUDA Wallet Platform (www.grudgeplatform.com/wallet) serves as the primary interface for operating GRD-17 nodes. When users visit this URL, they are redirected to a comprehensive node management application that provides full control over their GRUDA blockchain operations.
+
+---
+
+## Architecture Overview
+
+```
+User Access Flow:
+www.grudgeplatform.com/wallet
+           ↓
+    [Authentication Layer]
+           ↓
+    [Node Discovery Service]
+           ↓
+    [GRD-17 Node Interface]
+           ↓
+    [Wallet Operations Dashboard]
+```
+
+### Platform Components
+
+1. **Web Interface** (grudgeplatform.com/wallet)
+2. **Node Discovery Service** (finds user's node)
+3. **GRD-17 Node Application** (this application)
+4. **Blockchain Network** (GRUDA mainnet)
+5. **Mining Pool Integration**
+6. **Cross-chain Bridges**
+
+---
+
+## Wallet Platform Features
+
+### 1. Multi-Chain Wallet Management
+
+**Supported Networks**:
+```yaml
+primary_network:
+  name: "GRUDA Mainnet"
+  chain_id: "gruda-1"
+  native_token: "GRUDA"
+  consensus: "Tendermint BFT"
+
+supported_chains:
+  solana:
+    network: "mainnet-beta"
+    token_standard: "SPL"
+    bridge_contract: "GRUDAxSol..."
+    
+  ethereum:
+    network: "mainnet"
+    token_standard: "ERC-20"
+    bridge_contract: "0x1234..."
+    
+  polygon:
+    network: "matic-mainnet"
+    token_standard: "ERC-20"
+    bridge_contract: "0x5678..."
+    
+  bsc:
+    network: "binance-smart-chain"
+    token_standard: "BEP-20"
+    bridge_contract: "0x9abc..."
+```
+
+### 2. Node Operations Interface
+
+**Dashboard Sections**:
+
+```typescript
+interface WalletDashboard {
+  nodeStatus: {
+    online: boolean;
+    syncStatus: SyncInfo;
+    peers: number;
+    blockHeight: number;
+    nodeVersion: string;
+  };
+  
+  walletInfo: {
+    address: string;
+    balance: TokenBalance[];
+    stakingInfo: StakingDetails;
+    rewardsEarned: number;
+  };
+  
+  miningOperations: {
+    status: 'active' | 'inactive' | 'paused';
+    hashrate: string;
+    blocksFound: number;
+    earnings: number;
+    efficiency: number;
+  };
+  
+  validatorStatus: {
+    isValidator: boolean;
+    stakeAmount: number;
+    commission: number;
+    uptime: number;
+    slashingRisk: number;
+  };
+}
+```
+
+### 3. Security Features
+
+**Authentication Methods**:
+```yaml
+web3_wallet:
+  metamask: "Ethereum wallet connection"
+  phantom: "Solana wallet connection"
+  wallet_connect: "Universal wallet protocol"
+  
+hardware_wallets:
+  ledger: "Hardware security support"
+  trezor: "Hardware security support"
+  
+traditional_auth:
+  email_password: "Standard authentication"
+  two_factor: "TOTP-based 2FA"
+  biometric: "Mobile fingerprint/face"
+```
+
+---
+
+## Platform Integration Endpoints
+
+### 1. Node Discovery API
+
+```bash
+# Discover user's node
+POST https://api.grudgeplatform.com/v1/node/discover
+Headers:
+  Authorization: Bearer <user_token>
+  Content-Type: application/json
+
+Body:
+{
+  "wallet_address": "gruda1abc...",
+  "node_preference": "nearest|fastest|cheapest"
+}
+
+Response:
+{
+  "node_endpoints": [
+    {
+      "node_id": "grd17-node-001",
+      "endpoint": "https://node1.gruda.network:8545",
+      "location": "us-west-2",
+      "latency": 15,
+      "reliability": 99.9
+    }
+  ],
+  "recommended": "grd17-node-001"
+}
+```
+
+### 2. Wallet Bridge API
+
+```bash
+# Bridge tokens between chains
+POST https://api.grudgeplatform.com/v1/bridge/transfer
+Headers:
+  Authorization: Bearer <user_token>
+
+Body:
+{
+  "from_chain": "gruda",
+  "to_chain": "ethereum",
+  "amount": "1000000000",
+  "token": "GRUDA",
+  "destination_address": "0x1234...",
+  "source_address": "gruda1abc..."
+}
+
+Response:
+{
+  "bridge_id": "bridge_xyz789",
+  "estimated_time": "5-10 minutes",
+  "fees": {
+    "bridge_fee": "0.1%",
+    "gas_fee": "0.001 ETH"
+  },
+  "status": "pending"
+}
+```
+
+### 3. Mining Pool Integration
+
+```bash
+# Join mining pool
+POST https://api.grudgeplatform.com/v1/mining/join-pool
+Headers:
+  Authorization: Bearer <user_token>
+
+Body:
+{
+  "pool_id": "gruda-pool-main",
+  "worker_name": "my-gruda-miner",
+  "hash_rate_commitment": "100 MH/s"
+}
+
+Response:
+{
+  "pool_endpoint": "stratum+tcp://pool.gruda.mining:4444",
+  "worker_credentials": {
+    "username": "gruda1abc...worker1",
+    "password": "x"
+  },
+  "payout_threshold": "10 GRUDA"
+}
+```
+
+---
+
+## User Interface Components
+
+### 1. Wallet Connection Modal
+
+```typescript
+// Wallet connection component
+interface WalletConnectionProps {
+  onConnect: (wallet: WalletInfo) => void;
+  supportedWallets: WalletType[];
+}
+
+const WalletConnection = ({ onConnect, supportedWallets }: WalletConnectionProps) => {
+  return (
+    <div className="wallet-modal">
+      <h2>Connect Your Wallet</h2>
+      <div className="wallet-options">
+        {supportedWallets.map(wallet => (
+          <button 
+            key={wallet.id}
+            onClick={() => connectWallet(wallet)}
+            className="wallet-option"
+          >
+            <img src={wallet.icon} alt={wallet.name} />
+            <span>{wallet.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+```
+
+### 2. Node Status Display
+
+```typescript
+// Node status component
+interface NodeStatusProps {
+  nodeInfo: NodeInfo;
+  onNodeAction: (action: NodeAction) => void;
+}
+
+const NodeStatus = ({ nodeInfo, onNodeAction }: NodeStatusProps) => {
+  return (
+    <div className="node-status-panel">
+      <div className="status-header">
+        <h3>Node Status</h3>
+        <StatusIndicator status={nodeInfo.status} />
+      </div>
+      
+      <div className="status-grid">
+        <MetricCard 
+          title="Sync Status"
+          value={`${nodeInfo.syncProgress}%`}
+          status={nodeInfo.syncStatus}
+        />
+        <MetricCard 
+          title="Peers"
+          value={nodeInfo.peerCount}
+          status="normal"
+        />
+        <MetricCard 
+          title="Block Height"
+          value={nodeInfo.blockHeight}
+          status="normal"
+        />
+        <MetricCard 
+          title="Uptime"
+          value={nodeInfo.uptime}
+          status="normal"
+        />
+      </div>
+      
+      <ActionButtons>
+        <button onClick={() => onNodeAction('restart')}>
+          Restart Node
+        </button>
+        <button onClick={() => onNodeAction('update')}>
+          Update Node
+        </button>
+        <button onClick={() => onNodeAction('backup')}>
+          Backup Wallet
+        </button>
+      </ActionButtons>
+    </div>
+  );
+};
+```
+
+### 3. Mining Dashboard
+
+```typescript
+// Mining operations component
+interface MiningDashboardProps {
+  miningStats: MiningStats;
+  onMiningAction: (action: MiningAction) => void;
+}
+
+const MiningDashboard = ({ miningStats, onMiningAction }: MiningDashboardProps) => {
+  return (
+    <div className="mining-dashboard">
+      <div className="mining-header">
+        <h3>Mining Operations</h3>
+        <MiningStatus status={miningStats.status} />
+      </div>
+      
+      <div className="mining-stats">
+        <StatCard
+          title="Hash Rate"
+          value={miningStats.hashrate}
+          unit="MH/s"
+          trend={miningStats.hashrateTrend}
+        />
+        <StatCard
+          title="Blocks Found"
+          value={miningStats.blocksFound}
+          unit="blocks"
+          trend="stable"
+        />
+        <StatCard
+          title="Earnings"
+          value={miningStats.earnings}
+          unit="GRUDA"
+          trend={miningStats.earningsTrend}
+        />
+        <StatCard
+          title="Efficiency"
+          value={miningStats.efficiency}
+          unit="%"
+          trend={miningStats.efficiencyTrend}
+        />
+      </div>
+      
+      <MiningControls>
+        <button 
+          className={miningStats.status === 'active' ? 'stop' : 'start'}
+          onClick={() => toggleMining()}
+        >
+          {miningStats.status === 'active' ? 'Stop Mining' : 'Start Mining'}
+        </button>
+        <button onClick={() => onMiningAction('optimize')}>
+          Optimize Settings
+        </button>
+        <button onClick={() => onMiningAction('change-pool')}>
+          Change Pool
+        </button>
+      </MiningControls>
+    </div>
+  );
+};
+```
+
+---
+
+## Integration Workflows
+
+### 1. Initial User Onboarding
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as Wallet Platform
+    participant N as Node Discovery
+    participant G as GRD-17 Node
+    
+    U->>W: Visit grudgeplatform.com/wallet
+    W->>U: Show wallet connection options
+    U->>W: Connect wallet (MetaMask/Phantom)
+    W->>N: Request node discovery
+    N->>W: Return available nodes
+    W->>G: Establish connection
+    G->>W: Return node status
+    W->>U: Show dashboard
+```
+
+### 2. Mining Operations Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as Wallet Platform
+    participant G as GRD-17 Node
+    participant P as Mining Pool
+    
+    U->>W: Click "Start Mining"
+    W->>G: Send mining command
+    G->>P: Connect to pool
+    P->>G: Send work
+    G->>P: Submit shares
+    P->>G: Confirm rewards
+    G->>W: Update statistics
+    W->>U: Show mining status
+```
+
+### 3. Cross-Chain Transfer Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant W as Wallet Platform
+    participant G as GRD-17 Node
+    participant B as Bridge Contract
+    participant T as Target Chain
+    
+    U->>W: Initiate transfer
+    W->>G: Validate transaction
+    G->>B: Lock source tokens
+    B->>T: Mint target tokens
+    T->>W: Confirm completion
+    W->>U: Show success
+```
+
+---
+
+## Configuration Files
+
+### 1. Platform Configuration
+
+```yaml
+# wallet-platform.yml
+platform:
+  name: "GRUDA Wallet Platform"
+  version: "2.1.0"
+  environment: "production"
+  
+endpoints:
+  api: "https://api.grudgeplatform.com/v1"
+  websocket: "wss://ws.grudgeplatform.com"
+  node_discovery: "https://discovery.grudgeplatform.com"
+  
+supported_wallets:
+  - name: "MetaMask"
+    type: "ethereum"
+    connector: "metamask"
+  - name: "Phantom"
+    type: "solana"
+    connector: "phantom"
+  - name: "WalletConnect"
+    type: "universal"
+    connector: "walletconnect"
+
+security:
+  tls_version: "1.3"
+  cors_origins: ["https://grudgeplatform.com"]
+  rate_limits:
+    api: "100/minute"
+    websocket: "1000/minute"
+    
+ui_config:
+  theme: "dark"
+  refresh_interval: 30000
+  chart_update_interval: 5000
+```
+
+### 2. Node Integration Config
+
+```yaml
+# node-integration.yml
+node_discovery:
+  strategy: "nearest_first"
+  fallback: "fastest_available"
+  max_latency: 500
+  min_reliability: 95.0
+  
+connection:
+  timeout: 30000
+  retry_attempts: 3
+  retry_backoff: 2000
+  keep_alive: true
+  
+api_endpoints:
+  status: "/api/node/status"
+  wallet: "/api/wallet"
+  mining: "/api/mining"
+  validator: "/api/validator"
+  bridge: "/api/bridge"
+  
+features:
+  auto_reconnect: true
+  background_sync: true
+  offline_mode: false
+  push_notifications: true
+```
+
+---
+
+## Deployment Instructions
+
+### 1. Platform Deployment
+
+```bash
+# Deploy wallet platform
+git clone https://github.com/GrudgeDaDev/gruda-wallet-platform
+cd gruda-wallet-platform
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+vim .env  # Edit configuration
+
+# Build and deploy
+npm run build
+npm run deploy:production
+
+# Verify deployment
+curl -H "Health-Check: true" https://grudgeplatform.com/wallet/health
+```
+
+### 2. Node Integration Setup
+
+```bash
+# Configure this GRD-17 node for platform integration
+./gruda-node config platform \
+  --endpoint https://api.grudgeplatform.com \
+  --auth-token $PLATFORM_AUTH_TOKEN \
+  --enable-discovery \
+  --enable-remote-management
+
+# Register with platform
+./gruda-node platform register \
+  --node-name "My GRUDA Node" \
+  --region "us-west-2" \
+  --capabilities mining,validator,bridge
+
+# Test integration
+./gruda-node platform test \
+  --all-endpoints \
+  --verify-auth
+```
+
+### 3. SSL/TLS Configuration
+
+```nginx
+# nginx configuration for grudgeplatform.com
+server {
+    listen 443 ssl http2;
+    server_name grudgeplatform.com www.grudgeplatform.com;
+    
+    ssl_certificate /etc/ssl/certs/grudgeplatform.crt;
+    ssl_certificate_key /etc/ssl/private/grudgeplatform.key;
+    ssl_protocols TLSv1.3;
+    ssl_ciphers TLS_AES_256_GCM_SHA384;
+    
+    location /wallet {
+        proxy_pass http://wallet-app:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    location /api {
+        proxy_pass http://api-server:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
+## Monitoring and Analytics
+
+### 1. Platform Metrics
+
+```yaml
+metrics_to_track:
+  user_engagement:
+    - daily_active_users
+    - session_duration
+    - feature_usage
+    - conversion_rates
+    
+  node_performance:
+    - connection_success_rate
+    - api_response_times
+    - sync_completion_rate
+    - mining_efficiency
+    
+  financial_metrics:
+    - transaction_volume
+    - bridge_usage
+    - staking_participation
+    - reward_distribution
+```
+
+### 2. Monitoring Setup
+
+```bash
+# Install monitoring stack
+docker-compose -f monitoring/docker-compose.yml up -d
+
+# Configure Grafana dashboards
+curl -X POST http://admin:admin@localhost:3000/api/dashboards/db \
+  -H "Content-Type: application/json" \
+  -d @dashboards/wallet-platform.json
+
+# Set up alerts
+curl -X POST http://localhost:9093/api/v1/alerts \
+  -H "Content-Type: application/json" \
+  -d @alerts/platform-alerts.json
+```
+
+---
+
+## Troubleshooting Guide
+
+### Common Issues
+
+1. **Wallet Connection Failed**
+   ```bash
+   # Check network connectivity
+   curl -I https://grudgeplatform.com/wallet
+   
+   # Verify SSL certificate
+   openssl s_client -connect grudgeplatform.com:443
+   
+   # Clear browser cache and cookies
+   # Try different wallet provider
+   ```
+
+2. **Node Discovery Timeout**
+   ```bash
+   # Check node discovery service
+   curl https://discovery.grudgeplatform.com/health
+   
+   # Verify node registration
+   ./gruda-node platform status
+   
+   # Re-register if needed
+   ./gruda-node platform register --force
+   ```
+
+3. **Mining Not Starting**
+   ```bash
+   # Check mining pool connectivity
+   telnet pool.gruda.mining 4444
+   
+   # Verify worker credentials
+   ./gruda-node mining test-auth
+   
+   # Check GPU/CPU availability
+   ./gruda-node mining hardware-check
+   ```
+
+### Support Resources
+
+- **Documentation**: https://docs.grudgeplatform.com/wallet
+- **Community Forum**: https://forum.grudgeplatform.com
+- **Discord Support**: https://discord.gg/grudge-wallet
+- **Emergency Contact**: emergency@grudgeplatform.com
+
+---
+
+*Last Updated: December 28, 2024*
+*Platform Version: 2.1.0*
+*Document ID: GRUDA-WALLET-PLATFORM-001*
